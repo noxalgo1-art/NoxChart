@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#000000" />
+  <title>NoxAlgo — Supercharts Pro</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="theme-dark">
+
+  <!-- THEME-AWARE LOADING / SPLASH SCREEN -->
+  <div class="splash-screen" id="splashScreen">
+    <div class="splash-inner">
+      <div class="splash-logo">
+        <svg viewBox="0 0 64 64" width="60" height="60" fill="none">
+          <circle cx="32" cy="32" r="30" stroke="currentColor" stroke-opacity="0.18" stroke-width="2"/>
+          <polygon points="22,16 48,32 22,48 28,32" fill="#F23645"/>
+          <polygon points="22,16 32,32 22,48" fill="#FF6B78"/>
+        </svg>
+      </div>
+      <div class="splash-title">NoxAlgo</div>
+      <div class="splash-bar"><div class="splash-bar-fill"></div></div>
+    </div>
+  </div>
+
+  <!-- FIRST-TIME SECURE GMAIL VERIFICATION GATE -->
+  <div class="auth-screen hidden" id="authScreen">
+    <div class="auth-card">
+      <div class="auth-brand">
+        <div class="auth-logo-badge">
+          <svg viewBox="0 0 64 64" width="38" height="38" fill="none">
+            <polygon points="18,14 50,32 18,50 25,32" fill="#F23645"/>
+          </svg>
+        </div>
+        <h1>NoxAlgo</h1>
+        <p>Verified Gmail Sign-In Required</p>
+      </div>
+
+      <div id="authFormStep">
+        <div class="auth-tabs">
+          <button type="button" class="auth-tab active" data-auth-mode="login">Sign In</button>
+          <button type="button" class="auth-tab" data-auth-mode="signup">Create Account</button>
+        </div>
+
+        <form id="gmailAuthForm" novalidate>
+          <div class="auth-field hidden" id="nameFieldWrap">
+            <label for="authName">Full Name</label>
+            <input type="text" id="authName" placeholder="Enter your name" autocomplete="name" />
+          </div>
+
+          <div class="auth-field">
+            <label for="authEmail">Valid Gmail ID</label>
+            <input type="email" id="authEmail" placeholder="yourname@gmail.com" required autocomplete="email" />
+          </div>
+
+          <div class="auth-field">
+            <label for="authPassword">Password</label>
+            <input type="password" id="authPassword" placeholder="Minimum 6 characters" required autocomplete="current-password" />
+          </div>
+
+          <div class="auth-error hidden" id="authErrorBox"></div>
+
+          <button type="submit" class="auth-primary-btn" id="authSubmitBtn">Sign In with Verified Gmail</button>
+        </form>
+
+        <div class="auth-divider"><span>OR</span></div>
+
+        <button type="button" class="google-signin-btn" id="googleSignInBtn">
+          <svg width="18" height="18" viewBox="0 0 48 48">
+            <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+            <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+            <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+            <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+          </svg>
+          <span>Verify with Google Account</span>
+        </button>
+      </div>
+
+      <div class="verify-step hidden" id="verifyEmailStep">
+        <div class="verify-icon">✉️</div>
+        <h2>Verify Your Gmail</h2>
+        <p>We sent a real verification link to:<br><strong id="verifyTargetEmail">user@gmail.com</strong></p>
+        <p class="verify-sub">Open your Gmail inbox, tap the verification link from Firebase/NoxAlgo, then tap the button below.</p>
+
+        <div class="auth-error hidden" id="verifyErrorBox"></div>
+
+        <button type="button" class="auth-primary-btn" id="checkVerifiedBtn">I've Verified — Open Chart</button>
+        <button type="button" class="auth-secondary-btn" id="resendVerifyBtn">Resend Verification Email</button>
+        <button type="button" class="auth-link-btn" id="changeGmailBtn">Use another Gmail ID</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Exit Fullscreen Button -->
+  <button class="exit-fs-cross-btn" id="exitFsBtn" title="Exit Fullscreen" aria-label="Exit Fullscreen">
+    <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+  </button>
+
+  <!-- ================= MAIN MOBILE WORKSPACE SHELL ================= -->
+  <div class="app-shell hidden" id="appShell">
+
+    <!-- ================= TAB VIEW 1: CHART WORKSPACE ================= -->
+    <section class="main-view active" id="view-chart">
+
+      <!-- Top Compact Symbol Header -->
+      <header class="chart-topbar" id="chartTopbar">
+        <div class="ctop-left">
+          <button class="tv-btn sym-head-btn" id="topSymTitleBtn" title="Search or Add Symbol">
+            <span class="sym-badge-dot" id="topSymDot">Au</span>
+            <span id="topSymDesc">Gold Spot / U.S. Dollar</span>
+          </button>
+          <button class="tv-btn icon-only" id="topSymMoreBtn" title="Symbol & Candle Settings">
+            <svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.6" fill="currentColor"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><circle cx="19" cy="12" r="1.6" fill="currentColor"/></svg>
+          </button>
+        </div>
+        <div class="ctop-right">
+          <span class="sync-mini-dot" id="topSyncStatusDot" title="Firebase Cloud Sync"></span>
+          <button class="tv-btn icon-only" id="undoBtn" title="Undo">
+            <svg viewBox="0 0 24 24"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
+          </button>
+          <button class="tv-btn icon-only" id="redoBtn" title="Redo">
+            <svg viewBox="0 0 24 24"><polyline points="15 14 20 9 15 4"/><path d="M4 20v-7a4 4 0 0 1 4-4h12"/></svg>
+          </button>
+          <button class="tv-btn icon-only" id="toggleQuickTradeBtn" title="Buy/Sell Panel">
+            <svg viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+          </button>
+          <button class="tv-btn icon-only" id="screenshotBtn" title="Snapshot">
+            <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- Center Chart Canvas Stage -->
+      <div class="chart-stage" id="chartStage">
+
+        <!-- MOVABLE & SCROLLABLE STARRED FAVORITES FLOATING BAR -->
+        <div class="fav-toolbar vertical" id="favToolbar">
+          <div class="fav-head">
+            <span class="drag-grip" data-drag-target="favToolbar" title="Drag Favorites Toolbar">⋮⋮</span>
+            <button class="fav-rot-btn" id="favRotateBtn" title="Rotate Horizontal / Vertical">↻</button>
+          </div>
+          <div class="fav-items" id="favItemsContainer"></div>
+        </div>
+
+        <!-- EXACT TRADINGVIEW FLOATING OBJECT EDIT BAR (1-TAP TOOL SETTINGS) -->
+        <div class="object-edit-bar" id="objectEditBar">
+          <span class="drag-grip" data-drag-target="objectEditBar" title="Drag bar">⋮⋮</span>
+
+          <!-- Templates Grid Icon -->
+          <button type="button" class="tv-bar-icon-btn" id="objQuickTplBtn" title="Templates">
+            <svg viewBox="0 0 24 24"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><line x1="17" y1="14" x2="17" y2="20"/><line x1="14" y1="17" x2="20" y2="17"/></svg>
+          </button>
+
+          <!-- Stroke / Line Color with Color Bar -->
+          <button type="button" class="tv-bar-icon-btn" id="objStrokeColorBtn" title="Line Color & Opacity">
+            <svg viewBox="0 0 24 24"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+            <span class="tv-color-underline" id="objStrokeBar" style="background:#2962FF;"></span>
+          </button>
+
+          <!-- Fill Color with Color Bar -->
+          <button type="button" class="tv-bar-icon-btn" id="objFillColorBtn" title="Fill Color & Opacity">
+            <svg viewBox="0 0 24 24"><path d="m19 11-8-8-8.6 8.6a2 2 0 0 0 0 2.8l5.2 5.2c.8.8 2 .8 2.8 0L19 11Z"/><path d="m5 2 5 5"/><path d="M2 13h15"/><path d="M22 20a2 2 0 1 1-4 0c0-1.6 1.7-2.4 2-4 .3 1.6 2 2.4 2 4Z"/></svg>
+            <span class="tv-color-underline" id="objFillBar" style="background:rgba(41,98,255,0.2);"></span>
+          </button>
+
+          <!-- Text T Button -->
+          <button type="button" class="tv-bar-icon-btn" id="objTextQuickBtn" title="Add / Edit Text">
+            <span class="tv-t-glyph">T</span>
+          </button>
+
+          <!-- Line Thickness Button -->
+          <button type="button" class="tv-bar-text-btn num" id="objWidthQuickBtn" title="Line Width">2px</button>
+
+          <!-- Line Style Button -->
+          <button type="button" class="tv-bar-icon-btn" id="objDashQuickBtn" title="Line Style">
+            <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12" stroke-width="2"/></svg>
+          </button>
+
+          <!-- Full Settings Gear Button -->
+          <button type="button" class="tv-bar-icon-btn" id="objSettingsModalBtn" title="Tool Settings">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          </button>
+
+          <!-- Lock Button -->
+          <button type="button" class="tv-bar-icon-btn" id="objLockBtn" title="Lock / Unlock">
+            <svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+          </button>
+
+          <!-- Delete Trash Button -->
+          <button type="button" class="tv-bar-icon-btn" id="objDeleteBtn" title="Delete">
+            <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          </button>
+
+          <!-- More Options (...) -->
+          <button type="button" class="tv-bar-icon-btn" id="objMoreMenuBtn" title="More">
+            <svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="19" cy="12" r="1.5" fill="currentColor"/></svg>
+          </button>
+        </div>
+
+        <!-- Multi-Point Pattern Finish Floating Pill -->
+        <div class="multi-pt-bar hidden" id="multiPtFinishBar">
+          <span id="multiPtLabel">Tap points on chart</span>
+          <button type="button" class="tv-btn active" id="finishMultiPtBtn">✓ Done</button>
+          <button type="button" class="tv-btn" id="cancelMultiPtBtn">✕</button>
+        </div>
+
+        <!-- Category-Isolated Quick Template Popover -->
+        <div class="tpl-quick-popover" id="tplQuickPopover"></div>
+
+        <!-- MOVABLE Floating One-Click Buy/Sell Order Box -->
+        <div class="quick-trade-float" id="quickTradeFloat">
+          <span class="drag-grip" data-drag-target="quickTradeFloat" title="Drag order box">⋮⋮</span>
+          <div class="qt-side qt-sell" id="qtFloatSellBtn">
+            <span class="qt-lbl">SELL</span>
+            <span class="qt-px num" id="qtFloatSellPx">--</span>
+          </div>
+          <input type="number" class="qt-lot num" id="qtFloatLotInp" value="0.01" step="0.01" min="0.01" />
+          <div class="qt-side qt-buy" id="qtFloatBuyBtn">
+            <span class="qt-lbl">BUY</span>
+            <span class="qt-px num" id="qtFloatBuyPx">--</span>
+          </div>
+          <button class="qt-close" id="closeQuickTradeBtn">✕</button>
+        </div>
+
+        <!-- Multi-Pane Chart Grid -->
+        <div class="panes-wrap grid-1x1" id="panesWrap">
+          <!-- Pane 0 -->
+          <div class="chart-pane selected" id="pane0">
+            <canvas id="canvas0"></canvas>
+            <div class="ohlc-legend" id="ohlcLegend0">
+              <div class="legend-row">
+                <span class="drag-grip" data-drag-target="ohlcLegend0" title="Drag legend">⋮⋮</span>
+                <span class="live-quote-line num" id="liveQuoteLine0">--</span>
+                <button class="legend-ind-chip" id="legendIndChip0" title="Indicators">≈</button>
+                <button class="legend-collapse-btn" data-collapse="0">▴</button>
+              </div>
+              <div class="legend-details" id="legDetails0">
+                <div class="legend-row num">
+                  <span class="legend-kv"><span class="k">O</span><span id="legO0">--</span></span>
+                  <span class="legend-kv"><span class="k">H</span><span id="legH0">--</span></span>
+                  <span class="legend-kv"><span class="k">L</span><span id="legL0">--</span></span>
+                  <span class="legend-kv"><span class="k">C</span><span id="legC0">--</span></span>
+                  <span class="legend-kv"><span class="k">Vol</span><span id="legV0">--</span></span>
+                </div>
+                <div class="ind-legend-list" id="indLegend0"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pane 1 -->
+          <div class="chart-pane hidden" id="pane1">
+            <canvas id="canvas1"></canvas>
+            <div class="ohlc-legend" id="ohlcLegend1">
+              <div class="legend-row">
+                <span class="drag-grip" data-drag-target="ohlcLegend1" title="Drag legend">⋮⋮</span>
+                <span class="legend-sym" id="legSym1">XAUUSD · 15m</span>
+                <button class="legend-collapse-btn" data-collapse="1">▴</button>
+              </div>
+              <div class="legend-details" id="legDetails1">
+                <div class="legend-row num">
+                  <span class="legend-kv"><span class="k">O</span><span id="legO1">--</span></span>
+                  <span class="legend-kv"><span class="k">H</span><span id="legH1">--</span></span>
+                  <span class="legend-kv"><span class="k">L</span><span id="legL1">--</span></span>
+                  <span class="legend-kv"><span class="k">C</span><span id="legC1">--</span></span>
+                </div>
+                <div class="ind-legend-list" id="indLegend1"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pane 2 -->
+          <div class="chart-pane hidden" id="pane2">
+            <canvas id="canvas2"></canvas>
+            <div class="ohlc-legend">
+              <div class="legend-row"><span class="legend-sym" id="legSym2">EURUSD · 5m</span></div>
+            </div>
+          </div>
+
+          <!-- Pane 3 -->
+          <div class="chart-pane hidden" id="pane3">
+            <canvas id="canvas3"></canvas>
+            <div class="ohlc-legend">
+              <div class="legend-row"><span class="legend-sym" id="legSym3">BTCUSD · 5m</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MOVABLE Bar Replay Controller -->
+        <div class="replay-bar" id="replayBar">
+          <span class="drag-grip" data-drag-target="replayBar">⋮⋮</span>
+          <button class="tv-btn" id="repPlayBtn">▶ Play</button>
+          <button class="tv-btn" id="repStepBtn">⏭ +1</button>
+          <button class="tv-btn" id="repSpeedBtn">1x</button>
+          <button class="tv-btn" id="repLiveBtn" style="color:var(--tv-blue);">⏩ Live</button>
+          <button class="tv-btn" id="repExitBtn" style="color:var(--bear);">✕</button>
+        </div>
+
+        <!-- PRO ANALYSIS HUB SLIDING DRAWER -->
+        <div class="sliding-hub-backdrop" id="slidingHubBackdrop"></div>
+        <aside class="sliding-hub-drawer" id="slidingHubDrawer">
+          <div class="sh-head">
+            <div class="sh-title-group">
+              <div>
+                <div class="sh-main-title">Analysis Hub</div>
+                <div class="sh-sub-title">Workspace &amp; Chart Tools</div>
+              </div>
+            </div>
+            <button class="tv-btn icon-only" id="closeSlidingHubBtn" title="Close Hub">✕</button>
+          </div>
+
+          <div class="sh-body">
+            <div class="sec-cap">CHART GRID LAYOUT</div>
+            <div class="hub-grid">
+              <button class="hub-card active" data-grid="1x1">
+                <span>1×1</span>
+                <small>Single Chart</small>
+              </button>
+              <button class="hub-card" data-grid="2x1">
+                <span>2×1</span>
+                <small>Vertical Split</small>
+              </button>
+              <button class="hub-card" data-grid="1x2">
+                <span>1×2</span>
+                <small>Horizontal Split</small>
+              </button>
+              <button class="hub-card" data-grid="2x2">
+                <span>2×2</span>
+                <small>4-Chart Grid</small>
+              </button>
+            </div>
+
+            <div class="hub-sync-card">
+              <div class="sec-cap" style="margin-bottom:8px;">MULTI-PANE SYNC</div>
+              <div class="hub-sync-row">
+                <span>Sync Crosshair</span>
+                <label class="tv-toggle">
+                  <input type="checkbox" id="syncCrosshairChk" checked />
+                  <span class="tv-toggle-slider"></span>
+                </label>
+              </div>
+              <div class="hub-sync-row">
+                <span>Sync Symbol</span>
+                <label class="tv-toggle">
+                  <input type="checkbox" id="syncSymbolChk" />
+                  <span class="tv-toggle-slider"></span>
+                </label>
+              </div>
+              <div class="hub-sync-row">
+                <span>Sync Timeframe</span>
+                <label class="tv-toggle">
+                  <input type="checkbox" id="syncTfChk" />
+                  <span class="tv-toggle-slider"></span>
+                </label>
+              </div>
+            </div>
+
+            <div class="sec-cap">PRO CHART TOOLS</div>
+            <div class="hub-grid">
+              <button class="hub-card" id="hubReplayBtn">
+                <span>⏪ Replay</span>
+                <small>Bar Backtest</small>
+              </button>
+              <button class="hub-card" id="hubAlertBtn">
+                <span>🔔 Alert</span>
+                <small>Price Crossing</small>
+              </button>
+              <button class="hub-card" id="hubSettingsBtn">
+                <span>🕯 Candles</span>
+                <small>Colors &amp; Offset</small>
+              </button>
+              <button class="hub-card" id="hubCompareBtn">
+                <span>⊕ Compare</span>
+                <small>Overlay Symbol</small>
+              </button>
+              <button class="hub-card" id="hubAutoFitBtn">
+                <span>⌖ Auto Fit</span>
+                <small>Reset Scale</small>
+              </button>
+              <button class="hub-card" id="hubJumpLiveBtn">
+                <span>▶ Live Bar</span>
+                <small>Latest Candle</small>
+              </button>
+              <button class="hub-card" id="hubTemplatesBtn">
+                <span>💾 Layouts</span>
+                <small>Save / Load</small>
+              </button>
+              <button class="hub-card" id="hubCsvBtn">
+                <span>📄 Export CSV</span>
+                <small>OHLCV Data</small>
+              </button>
+            </div>
+          </div>
+        </aside>
+
+        <!-- LIVE INLINE SPINNER HUD -->
+        <div class="inline-wheel-hud" id="inlineWheelHud">
+          <div class="iwh-track" id="inlineWheelTrack"></div>
+        </div>
+      </div>
+
+      <!-- TradingView Mobile Chart Action Bar -->
+      <div class="chart-action-bar" id="chartActionBar">
+        <div class="mini-wheel-slot" id="cabSymWheelBtn" title="Scroll directly to spin Symbol">
+          <span class="mw-prev" id="mwSymPrev">BTCUSD</span>
+          <span class="mw-curr" id="mwSymCurr">XAUUSD</span>
+          <span class="mw-next" id="mwSymNext">EURUSD</span>
+        </div>
+
+        <div class="mini-wheel-slot" id="cabTfWheelBtn" title="Scroll directly to spin Timeframe">
+          <span class="mw-prev" id="mwTfPrev">1m</span>
+          <span class="mw-curr" id="mwTfCurr">5m</span>
+          <span class="mw-next" id="mwTfNext">15m</span>
+        </div>
+
+        <div class="cab-tools">
+          <button class="cab-icon-btn" id="cabDrawingsBtn" title="Drawings & Starred Tools">
+            <svg viewBox="0 0 24 24"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+          </button>
+          <button class="cab-icon-btn" id="cabIndicatorsBtn" title="Indicators">
+            <svg viewBox="0 0 24 24"><path d="M4 19h4l4-14h4"/><line x1="14" y1="12" x2="20" y2="18"/><line x1="20" y1="12" x2="14" y2="18"/></svg>
+          </button>
+          <button class="cab-icon-btn" id="cabChartTypeBtn" title="Chart Type">
+            <svg viewBox="0 0 24 24"><line x1="9" y1="4" x2="9" y2="20"/><rect x="7" y="8" width="4" height="7" fill="currentColor"/><line x1="17" y1="4" x2="17" y2="20"/><rect x="15" y="10" width="4" height="6"/></svg>
+          </button>
+          <button class="cab-icon-btn" id="cabMoreBtn" title="Toggle Analysis Hub">
+            <svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.7" fill="currentColor"/><circle cx="12" cy="12" r="1.7" fill="currentColor"/><circle cx="19" cy="12" r="1.7" fill="currentColor"/></svg>
+          </button>
+          <button class="cab-icon-btn" id="cabFullscreenBtn" title="Fullscreen">
+            <svg viewBox="0 0 24 24"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><polyline points="21 15 21 21 15 21"/><polyline points="3 9 3 3 9 3"/></svg>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= TAB VIEW 2: WATCHLIST ================= -->
+    <section class="main-view" id="view-watchlist">
+      <div class="view-header">
+        <span class="view-title">Watchlist</span>
+        <button class="tv-btn active" id="wlAddSymBtn">+ Add Symbol</button>
+      </div>
+      <div class="search-bar-box">
+        <input type="text" id="wlSearchInput" placeholder="Filter watchlist symbols..." />
+      </div>
+      <div class="wl-list" id="watchlistContainer"></div>
+      <div class="sym-details-card" id="symbolDetailsCard">
+        <div class="sd-head">
+          <span class="sd-title" id="sdSymbol">XAUUSD</span>
+          <span class="sd-badge" id="sdMarketStatus">● 24/7 Live</span>
+        </div>
+        <div class="sd-sub" id="sdDesc">Gold Spot / U.S. Dollar · Commodities</div>
+        <div class="range-block">
+          <div class="range-labels num"><span id="sdDayLow">--</span><span>Day's Range</span><span id="sdDayHigh">--</span></div>
+          <div class="range-track"><div class="range-fill" id="sdDayFill"></div></div>
+        </div>
+        <div class="range-block" style="margin-bottom:0;">
+          <div class="range-labels num"><span id="sd52Low">--</span><span>52W Range</span><span id="sd52High">--</span></div>
+          <div class="range-track"><div class="range-fill" id="sd52Fill"></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= TAB VIEW 3: ALERTS & OBJECT TREE ================= -->
+    <section class="main-view" id="view-alerts">
+      <div class="view-header">
+        <span class="view-title">Alerts &amp; Object Tree</span>
+        <button class="tv-btn active" id="viewAddAlertBtn">+ New Alert</button>
+      </div>
+      <div class="wl-list">
+        <div class="wl-cat">Price Alerts</div>
+        <div id="alertsListContainer"></div>
+        <div class="wl-cat">Active Drawings &amp; Layers</div>
+        <div id="objectTreeContainer"></div>
+      </div>
+    </section>
+
+    <!-- ================= TAB VIEW 4: TRADING & MT5 PORTFOLIO ================= -->
+    <section class="main-view" id="view-trading">
+      <div class="view-header">
+        <span class="view-title">Trading &amp; MT5</span>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span class="mt5-status-pill" id="mt5HeaderStatus">MT5 Offline</span>
+          <button type="button" class="tv-btn active" id="openMt5ConnectBtn">Connect MT5</button>
+        </div>
+      </div>
+      <div class="wl-list" style="padding:10px;" id="tradingViewBody"></div>
+    </section>
+
+    <!-- ================= TAB VIEW 5: TRADINGVIEW-STYLE MENU ================= -->
+    <section class="main-view" id="view-menu">
+      <div class="tv-menu-topbar">
+        <button type="button" class="tv-top-icon" id="menuBellBtn" title="Notifications">
+          <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        </button>
+        <button type="button" class="tv-top-icon" id="openSettingsScreenBtn" title="Settings">
+          <svg viewBox="0 0 24 24"><polygon points="12 2 21 7 21 17 12 22 3 17 3 7 12 2"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+
+      <div class="tv-menu-scroll">
+        <div class="tv-profile-card" id="menuProfileCard">
+          <div class="tv-profile-top">
+            <img id="gmailUserAvatar" src="" alt="Profile" class="tv-avatar-img hidden" />
+            <div class="tv-avatar" id="menuAvatar">S</div>
+            <div class="tv-user-meta">
+              <div class="tv-username" id="gmailUserName">Trader</div>
+              <div class="tv-user-sub" id="gmailUserEmail">Verified Gmail</div>
+              <div class="tv-badge" id="cloudSyncBadge">VERIFIED</div>
+            </div>
+            <span class="tv-chevron">›</span>
+          </div>
+          <div class="tv-stats-row">
+            <div class="tv-stat"><strong id="statDrawings">0</strong><span>Drawings</span></div>
+            <div class="tv-stat"><strong id="statAlerts">0</strong><span>Alerts</span></div>
+            <div class="tv-stat"><strong id="statTemplates">0</strong><span>Templates</span></div>
+          </div>
+        </div>
+
+        <div class="tv-dual-cards">
+          <button type="button" class="tv-mini-card" id="menuSubCard">
+            <div class="tv-mini-card-head">
+              <span class="tv-card-icon">▭</span>
+              <span class="tv-chevron">›</span>
+            </div>
+            <strong>Subscription</strong>
+            <p>Get the full power of NoxAlgo</p>
+          </button>
+
+          <button type="button" class="tv-mini-card" id="menuReferCard">
+            <div class="tv-mini-card-head">
+              <span class="tv-card-icon">👤↗</span>
+              <span class="tv-chevron">›</span>
+            </div>
+            <strong>Refer a friend</strong>
+            <p>Share what you love</p>
+          </button>
+        </div>
+
+        <div class="tv-menu-list">
+          <button type="button" class="tv-list-row" id="menuMt5BrokerRow">
+            <span class="tv-row-left">🔌 MetaTrader 5 (MT5) Broker</span>
+            <span class="tv-row-right" id="menuMt5StatusLabel">Connect ›</span>
+          </button>
+          <button type="button" class="tv-list-row" id="forceCloudSyncBtn">
+            <span class="tv-row-left">☁ Sync Cloud Data</span>
+            <span class="tv-row-right" id="syncStatusText">Synced ›</span>
+          </button>
+          <button type="button" class="tv-list-row" id="menuSymbolSettingsBtn">
+            <span class="tv-row-left">🕯 Symbol &amp; Candle Colors</span>
+            <span class="tv-chevron">›</span>
+          </button>
+          <button type="button" class="tv-list-row" id="menuTemplatesBtn">
+            <span class="tv-row-left">💾 Saved Chart Layouts</span>
+            <span class="tv-chevron">›</span>
+          </button>
+          <button type="button" class="tv-list-row" id="menuExportCsvBtn">
+            <span class="tv-row-left">📄 Export OHLCV (.CSV)</span>
+            <span class="tv-chevron">›</span>
+          </button>
+          <button type="button" class="tv-list-row" id="menuRateBtn">
+            <span class="tv-row-left">☆ Rate us</span>
+          </button>
+          <button type="button" class="tv-list-row" id="menuHelpBtn">
+            <span class="tv-row-left">? Help Center</span>
+          </button>
+          <button type="button" class="tv-list-row" id="menuAboutBtn">
+            <span class="tv-row-left">ⓘ About</span>
+            <span class="tv-chevron">›</span>
+          </button>
+        </div>
+
+        <button type="button" class="tv-signout-row" id="googleSignOutBtn">
+          <span>↪ Sign Out</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ================= TRADINGVIEW-STYLE SETTINGS SUB-SCREEN ================= -->
+    <section class="main-view" id="view-settings">
+      <div class="tv-settings-header">
+        <button type="button" class="tv-back-btn" id="backFromSettingsBtn">←</button>
+        <h2>Settings</h2>
+      </div>
+
+      <div class="tv-menu-scroll">
+        <div class="tv-menu-list">
+          <button type="button" class="tv-list-row" id="settingThemeRow">
+            <span class="tv-row-left">☾ Theme</span>
+            <span class="tv-row-right"><span id="settingThemeValue">Dark</span> ›</span>
+          </button>
+
+          <div class="tv-list-row">
+            <span class="tv-row-left">◉ Keep Screen On</span>
+            <label class="tv-toggle">
+              <input type="checkbox" id="keepScreenOnToggle" />
+              <span class="tv-toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="tv-menu-list">
+          <button type="button" class="tv-list-row" data-jump-nav="watchlist">
+            <span class="tv-row-left">▤ Watchlist</span>
+            <span class="tv-chevron">›</span>
+          </button>
+          <button type="button" class="tv-list-row" id="settingsChartJumpBtn">
+            <span class="tv-row-left">∿ Chart</span>
+            <span class="tv-chevron">›</span>
+          </button>
+        </div>
+
+        <div class="settings-card" style="margin-bottom:14px;">
+          <div class="sc-title">Chart Scale &amp; Timezone</div>
+          <div class="form-row">
+            <span>Timezone</span>
+            <select id="tzSelect" class="modal-input">
+              <option value="19800" selected>(UTC+5:30) Kolkata</option>
+              <option value="0">UTC</option>
+              <option value="-18000">UTC-5 (New York)</option>
+              <option value="3600">UTC+1 (London)</option>
+              <option value="32400">UTC+9 (Tokyo)</option>
+            </select>
+          </div>
+          <div class="form-row" style="margin-top:8px;">
+            <span>Price Scale Mode</span>
+            <div style="display:flex;gap:4px;">
+              <button type="button" class="obj-btn" id="pctScaleBtn">%</button>
+              <button type="button" class="obj-btn" id="logScaleBtn">log</button>
+              <button type="button" class="obj-btn on" id="autoScaleFooterBtn">auto</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="tv-menu-list">
+          <div class="tv-list-row">
+            <span class="tv-row-left">🔔 Push-notifications</span>
+            <label class="tv-toggle">
+              <input type="checkbox" id="pushNotifToggle" checked />
+              <span class="tv-toggle-slider"></span>
+            </label>
+          </div>
+          <div class="tv-list-row">
+            <span class="tv-row-left">🌐 Language</span>
+            <span class="tv-row-right">English ›</span>
+          </div>
+        </div>
+
+        <div class="tv-menu-list">
+          <button type="button" class="tv-list-row" id="contactInfoRow">
+            <span class="tv-row-left">✉ Contact information</span>
+            <span class="tv-row-right" id="contactGmailPreview">Verified ›</span>
+          </button>
+        </div>
+
+        <button type="button" class="tv-signout-row" id="deleteAccountBtn">
+          <span>👤✕ Delete account</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ================= BOTTOM 5-TAB NAVIGATION BAR ================= -->
+    <nav class="tv-bottom-nav" id="tvBottomNav">
+      <button class="bnav-btn" data-nav="watchlist">
+        <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="13" y2="16"/></svg>
+        <span>Watchlist</span>
+      </button>
+      <button class="bnav-btn active" data-nav="chart">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><polyline points="7 14 10.5 10.5 13.5 13.5 17 9"/></svg>
+        <span>Chart</span>
+      </button>
+      <button class="bnav-btn" data-nav="alerts">
+        <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span>Alerts</span>
+      </button>
+      <button class="bnav-btn" data-nav="trading">
+        <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+        <span>Trading</span>
+      </button>
+      <button class="bnav-btn" data-nav="menu">
+        <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        <span>Menu</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- ================= BOTTOM SHEETS & MODALS ================= -->
+
+  <!-- 1. Symbol Context Sheet -->
+  <div class="sheet-backdrop" id="symbolContextSheet">
+    <div class="tv-sheet">
+      <div class="sheet-grabber"></div>
+      <div class="modal-body">
+        <div class="modal-item" id="scAddAlertRow"><span>🔔 Add alert on <strong id="scAlertSym">XAUUSD</strong> at <span id="scAlertPx" class="num">--</span>...</span></div>
+        <div class="modal-item" id="scAddOrderRow"><span>⇅ Add order on <strong id="scOrdSym">XAUUSD</strong> at <span id="scOrdPx" class="num">--</span>...</span></div>
+        <div class="modal-item" id="scAddIndRow"><span>ƒx Add indicator/strategy...</span></div>
+        <div class="modal-item" id="scDetailsRow"><span>ⓘ Symbol details...</span></div>
+        <div class="modal-item" id="scCopyPxRow"><span>📋 Copy price <span id="scCopyPx" class="num">--</span></span></div>
+        <div class="modal-item" id="scSettingsRow" style="font-weight:700;color:var(--tv-blue);"><span>⚙ Settings...</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Symbol & Candle Settings Modal -->
+  <div class="modal-backdrop" id="symbolSettingsModal">
+    <div class="tv-modal" style="max-width:400px;">
+      <div class="modal-head">
+        <button class="tv-btn icon-only" data-close="symbolSettingsModal">‹</button>
+        <span>Symbol</span>
+        <button class="tv-btn icon-only" data-close="symbolSettingsModal">✕</button>
+      </div>
+      <div class="modal-body" style="padding:14px;display:flex;flex-direction:column;gap:14px;">
+        <div class="sec-cap">CANDLES</div>
+        <label class="chk-row">
+          <input type="checkbox" id="ssColorPrevClose" />
+          <span>Color bars based on previous close</span>
+        </label>
+
+        <div class="candle-style-row">
+          <label class="chk-row"><input type="checkbox" id="ssBodyChk" checked /><span>Body</span></label>
+          <div class="swatch-pair">
+            <button type="button" class="tv-swatch-btn" id="ssBodyBullBtn" data-color-key="bodyBull"></button>
+            <button type="button" class="tv-swatch-btn" id="ssBodyBearBtn" data-color-key="bodyBear"></button>
+          </div>
+        </div>
+
+        <div class="candle-style-row">
+          <label class="chk-row"><input type="checkbox" id="ssBorderChk" checked /><span>Borders</span></label>
+          <div class="swatch-pair">
+            <button type="button" class="tv-swatch-btn" id="ssBorderBullBtn" data-color-key="borderBull"></button>
+            <button type="button" class="tv-swatch-btn" id="ssBorderBearBtn" data-color-key="borderBear"></button>
+          </div>
+        </div>
+
+        <div class="candle-style-row">
+          <label class="chk-row"><input type="checkbox" id="ssWickChk" checked /><span>Wick</span></label>
+          <div class="swatch-pair">
+            <button type="button" class="tv-swatch-btn" id="ssWickBullBtn" data-color-key="wickBull"></button>
+            <button type="button" class="tv-swatch-btn" id="ssWickBearBtn" data-color-key="wickBear"></button>
+          </div>
+        </div>
+
+        <div class="sec-cap" style="margin-top:4px;">DATA MODIFICATION</div>
+        <div class="form-row">
+          <span>Precision</span>
+          <select id="ssPrecisionSel" class="modal-input">
+            <option value="default">Default</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <span>Timezone</span>
+          <select id="ssTimezoneSel" class="modal-input">
+            <option value="19800">(UTC+5:30) Kolkata</option>
+            <option value="0">UTC</option>
+            <option value="-18000">UTC-5 (New York)</option>
+            <option value="3600">UTC+1 (London)</option>
+            <option value="32400">UTC+9 (Tokyo)</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <span>Broker Offset (<span id="ssOffsetSym">XAUUSD</span>)</span>
+          <input type="number" id="ssOffsetInp" step="0.01" class="modal-input num" style="width:95px;" />
+        </div>
+      </div>
+      <div class="modal-foot-bar">
+        <button type="button" class="tv-btn" id="ssResetDefaultBtn">Reset</button>
+        <div style="display:flex;gap:8px;">
+          <button type="button" class="tv-btn" data-close="symbolSettingsModal">Cancel</button>
+          <button type="button" class="tv-btn active" id="ssOkBtn" style="padding:0 16px;">Ok</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. 10x8 TradingView Color Palette & Smooth Sliding Opacity Popover -->
+  <div class="color-palette-popover" id="tvColorPalettePopover">
+    <div class="cp-grid" id="cpSwatchesGrid"></div>
+    <div class="cp-custom-row">
+      <label class="cp-plus-btn" title="Custom Color">
+        <span>+</span>
+        <input type="color" id="cpCustomHexInp" style="position:absolute;inset:0;opacity:0;cursor:pointer;" />
+      </label>
+      <span id="cpHexPreview" class="num" style="font-size:11px;color:var(--text-muted);">#089981</span>
+    </div>
+    <div class="cp-opacity-block">
+      <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:6px;">
+        <span style="color:var(--text-muted);">Opacity</span>
+        <span id="cpOpacityVal" class="num" style="font-weight:700;">100%</span>
+      </div>
+      <input type="range" id="cpOpacitySlider" class="smooth-opacity-slider" min="0" max="100" value="100" />
+    </div>
+  </div>
+
+  <!-- 4. Drawing Settings & Category-Isolated Templates Modal -->
+  <div class="modal-backdrop" id="drawingEditModal">
+    <div class="tv-modal" style="max-width:400px;">
+      <div class="modal-head">
+        <span id="drawEditModalTitle">Drawing Settings</span>
+        <button class="tv-btn icon-only" data-close="drawingEditModal">✕</button>
+      </div>
+      <div class="sheet-tabs" id="drawEditTabs">
+        <button type="button" class="stab active" data-detab="style">Style</button>
+        <button type="button" class="stab" data-detab="text">Text</button>
+        <button type="button" class="stab" data-detab="coords">Coordinates</button>
+        <button type="button" class="stab" data-detab="vis">Visibility</button>
+      </div>
+      <div class="modal-body" style="padding:12px 14px;">
+        <div class="de-pane active" id="de-style">
+          <div class="form-row">
+            <span>Line / Border Color</span>
+            <button type="button" class="tv-swatch-btn" id="deLineColorBtn"></button>
+          </div>
+          <div class="form-row" style="margin-top:10px;">
+            <span>Fill / Background Color</span>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <input type="checkbox" id="deFillEnabledChk" checked />
+              <button type="button" class="tv-swatch-btn" id="deFillColorBtn"></button>
+            </div>
+          </div>
+          <div class="form-row" style="margin-top:10px;">
+            <span>Thickness</span>
+            <div style="display:flex;gap:4px;">
+              <button type="button" class="obj-btn de-w-btn" data-w="1">1px</button>
+              <button type="button" class="obj-btn de-w-btn" data-w="2">2px</button>
+              <button type="button" class="obj-btn de-w-btn" data-w="3">3px</button>
+              <button type="button" class="obj-btn de-w-btn" data-w="4">4px</button>
+            </div>
+          </div>
+          <div class="form-row" style="margin-top:10px;">
+            <span>Line Style</span>
+            <div style="display:flex;gap:4px;">
+              <button type="button" class="obj-btn de-d-btn" data-d="solid">Solid</button>
+              <button type="button" class="obj-btn de-d-btn" data-d="dashed">Dashed</button>
+              <button type="button" class="obj-btn de-d-btn" data-d="dotted">Dotted</button>
+            </div>
+          </div>
+          <div class="form-row" style="margin-top:10px;">
+            <span>Extend Line</span>
+            <div style="display:flex;gap:10px;">
+              <label class="chk-row"><input type="checkbox" id="deExtLeftChk" /><span>Left</span></label>
+              <label class="chk-row"><input type="checkbox" id="deExtRightChk" /><span>Right</span></label>
+            </div>
+          </div>
+        </div>
+
+        <div class="de-pane" id="de-text" style="display:none;flex-direction:column;gap:9px;">
+          <div class="form-row">
+            <span>Label Text</span>
+            <input type="text" id="deTextInp" placeholder="e.g. BOS, CHoCH, MSS, OB, FVG" class="modal-input" style="width:205px;" />
+          </div>
+          <div class="form-row">
+            <span>Text Color &amp; Size</span>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <button type="button" class="tv-swatch-btn" id="deTextColorBtn"></button>
+              <select id="deFontSizeInp" class="modal-input num">
+                <option value="4">4px</option>
+                <option value="6">6px</option>
+                <option value="8">8px</option>
+                <option value="10">10px</option>
+                <option value="12" selected>12px</option>
+                <option value="14">14px</option>
+                <option value="16">16px</option>
+                <option value="18">18px</option>
+                <option value="20">20px</option>
+                <option value="24">24px</option>
+                <option value="28">28px</option>
+                <option value="32">32px</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <span>Text Alignment</span>
+            <div style="display:flex;gap:4px;">
+              <select id="deTextVAlign" class="modal-input">
+                <option value="top" selected>Top</option>
+                <option value="middle">Center</option>
+                <option value="bottom">Bottom</option>
+              </select>
+              <select id="deTextHAlign" class="modal-input">
+                <option value="left">Left</option>
+                <option value="center" selected>Center</option>
+                <option value="right">Right</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="de-pane" id="de-coords" style="display:none;flex-direction:column;gap:8px;">
+          <div class="form-row">
+            <span id="deP1Label">Price 1</span>
+            <input type="number" id="deP1Inp" step="any" class="modal-input num" style="width:135px;" />
+          </div>
+          <div class="form-row" id="deP2Row">
+            <span id="deP2Label">Price 2</span>
+            <input type="number" id="deP2Inp" step="any" class="modal-input num" style="width:135px;" />
+          </div>
+          <div class="form-row" id="deP3Row" style="display:none;">
+            <span id="deP3Label">Stop Loss Price</span>
+            <input type="number" id="deP3Inp" step="any" class="modal-input num" style="width:135px;" />
+          </div>
+        </div>
+
+        <div class="de-pane" id="de-vis" style="display:none;flex-direction:column;gap:8px;">
+          <div style="display:flex;gap:6px;margin-bottom:4px;">
+            <button type="button" class="obj-btn on" id="visCurrentTfOnlyBtn">Current TF Only</button>
+            <button type="button" class="obj-btn" id="visAllTfsBtn">All Timeframes</button>
+          </div>
+          <div class="vis-grid" id="visCheckboxesGrid">
+            <label class="chk-row"><input type="checkbox" data-vistf="sec" checked /><span>Seconds (1s–30s)</span></label>
+            <label class="chk-row"><input type="checkbox" data-vistf="60" checked /><span>1m</span></label>
+            <label class="chk-row"><input type="checkbox" data-vistf="180" checked /><span>3m</span></label>
+            <label class="chk-row"><input type="checkbox" data-vistf="300" checked /><span>5m</span></label>
+            <label class="chk-row"><input type="checkbox" data-vistf="900" checked /><span>15m</span></label>
+            <label class="chk-row"><input type="checkbox" data-vistf="1800" checked /><span>30m</span></label>
+            <label class="chk-row"><input type="checkbox" data-vistf="3600" checked /><span>1H</span></label>
+            <label class="chk-row"><input type="checkbox" data-vistf="14400" checked /><span>4H</span></label>
+            <label class="chk-row"><input type="checkbox" data-vistf="86400" checked /><span>1D</span></label>
+            <label class="chk-row"><input type="checkbox" data-vistf="604800" checked /><span>1W</span></label>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-foot-bar">
+        <div style="position:relative;display:flex;gap:6px;">
+          <button type="button" class="tv-btn" id="deTemplateMenuBtn" style="border:1px solid var(--border-col);">Template ▾</button>
+          <button type="button" class="tv-btn" id="deResetDefaultBtn" style="border:1px solid var(--border-col);">Default</button>
+          <div class="tpl-dropdown-menu" id="deTemplateDropdown"></div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button type="button" class="tv-btn" data-close="drawingEditModal">Cancel</button>
+          <button type="button" class="tv-btn active" id="applyDrawEditBtn" style="padding:0 16px;">Ok</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. All TradingView Drawing Tools (Free + Paid/Pro Suite) Bottom Sheet -->
+  <div class="sheet-backdrop" id="drawingsSheet">
+    <div class="tv-sheet">
+      <div class="sheet-grabber"></div>
+      <div class="sheet-head">
+        <span>Drawings (All Free &amp; Pro Tools)</span>
+        <button class="tv-btn icon-only" data-close-sheet="drawingsSheet">✕</button>
+      </div>
+      <div class="modal-search">
+        <input type="text" id="drawSearchInput" placeholder="Search Fib, Pitchfork, Elliott Wave, VWAP, Volume Profile, Harmonic..." />
+      </div>
+      <div class="sheet-tabs" id="drawCatTabs">
+        <button class="stab active" data-dcat="Favorites">★ Favorites</button>
+        <button class="stab" data-dcat="Tools">Tools</button>
+        <button class="stab" data-dcat="Trend tools">Trend lines</button>
+        <button class="stab" data-dcat="Gann and Fibonacci">Gann &amp; Fib</button>
+        <button class="stab" data-dcat="Patterns">Patterns</button>
+        <button class="stab" data-dcat="Forecasting and measurement">Forecasting &amp; VP</button>
+        <button class="stab" data-dcat="Geometric shapes">Shapes</button>
+        <button class="stab" data-dcat="Annotations">Annotations</button>
+      </div>
+      <div class="sheet-grid-body" id="drawToolsGrid"></div>
+      <div class="sheet-footer-toggle">
+        <span>Show favorites on Chart</span>
+        <input type="checkbox" id="showFavToolbarChk" checked class="tv-switch" />
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. Chart Type Visual Grid Bottom Sheet -->
+  <div class="sheet-backdrop" id="chartTypeSheet">
+    <div class="tv-sheet">
+      <div class="sheet-grabber"></div>
+      <div class="sheet-head">
+        <span>Chart type</span>
+        <button class="tv-btn icon-only" data-close-sheet="chartTypeSheet">✕</button>
+      </div>
+      <div class="sheet-grid-body" id="chartTypeGrid"></div>
+    </div>
+  </div>
+
+  <!-- 7. Symbol Search & Add Custom Symbol Modal -->
+  <div class="modal-backdrop" id="symbolModal">
+    <div class="tv-modal">
+      <div class="modal-head">
+        <span id="symModalTitle">Symbol Search &amp; Add</span>
+        <button class="tv-btn icon-only" data-close="symbolModal">✕</button>
+      </div>
+      <div class="modal-search">
+        <input type="text" id="symSearchInput" placeholder="Type any symbol (e.g. XAUUSD, GBPJPY, XRPUSD, US30)..." />
+      </div>
+      <div class="modal-body" id="symModalList"></div>
+    </div>
+  </div>
+
+  <!-- 8. Indicators (fx) Modal -->
+  <div class="modal-backdrop" id="indModal">
+    <div class="tv-modal">
+      <div class="modal-head">
+        <span>Indicators, Metrics &amp; Pro SMC</span>
+        <button class="tv-btn icon-only" data-close="indModal">✕</button>
+      </div>
+      <div class="modal-search">
+        <input type="text" id="indSearchInput" placeholder="Search EMA, SMA, Bollinger, RSI, MACD, ATR, Supertrend, VPVR, Killzones, BOS..." />
+      </div>
+      <div class="modal-body" id="indModalList"></div>
+    </div>
+  </div>
+
+  <!-- 9. Alert Creator Modal -->
+  <div class="modal-backdrop" id="alertModal">
+    <div class="tv-modal" style="max-width:360px;">
+      <div class="modal-head">
+        <span id="alertModalTitle">Create Price Alert</span>
+        <button class="tv-btn icon-only" data-close="alertModal">✕</button>
+      </div>
+      <div class="modal-body" style="padding:12px 14px;display:flex;flex-direction:column;gap:10px;">
+        <div class="form-row">
+          <span>Condition</span>
+          <select id="alertConditionSel" class="modal-input">
+            <option value="crossing">Crossing</option>
+            <option value="up">Crossing Up</option>
+            <option value="down">Crossing Down</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <span>Target Price</span>
+          <input type="number" id="alertPriceInput" step="any" class="modal-input num" />
+        </div>
+        <div class="form-row">
+          <span>Alert Note</span>
+          <input type="text" id="alertMsgInput" placeholder="Liquidity sweep / Breakout" class="modal-input" />
+        </div>
+        <button type="button" class="tv-btn active" id="saveAlertModalBtn" style="width:100%;justify-content:center;margin-top:4px;">Save Alert</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 10. Workspace Layouts Modal -->
+  <div class="modal-backdrop" id="layoutModal">
+    <div class="tv-modal" style="max-width:380px;">
+      <div class="modal-head">
+        <span>Saved Chart Layouts</span>
+        <button class="tv-btn icon-only" data-close="layoutModal">✕</button>
+      </div>
+      <div class="modal-body" style="padding:12px 14px;display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;gap:6px;">
+          <input type="text" id="newLayoutNameInput" placeholder="Layout name (e.g. Gold SMC)" class="modal-input" style="flex:1;" />
+          <button type="button" class="tv-btn active" id="saveLayoutTemplateBtn">Save</button>
+        </div>
+        <div id="savedLayoutsList" style="max-height:190px;overflow-y:auto;border:1px solid var(--border-col);border-radius:4px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 11. METATRADER 5 (MT5) BROKER CONNECTION MODAL -->
+  <div class="modal-backdrop" id="mt5ConnectModal">
+    <div class="tv-modal" style="max-width:410px;">
+      <div class="modal-head">
+        <span>Connect MetaTrader 5 (MT5)</span>
+        <button class="tv-btn icon-only" data-close="mt5ConnectModal">✕</button>
+      </div>
+      <div class="sheet-tabs" id="mt5ModeTabs">
+        <button type="button" class="stab active" data-mt5mode="metaapi">Cloud Bridge (Mobile)</button>
+        <button type="button" class="stab" data-mt5mode="local">Local / LAN Python Bridge</button>
+      </div>
+      <div class="modal-body" style="padding:12px 14px;display:flex;flex-direction:column;gap:10px;">
+        <div id="mt5MetaApiPane" style="display:flex;flex-direction:column;gap:9px;">
+          <p style="font-size:11px;color:var(--text-muted);line-height:1.4;">
+            Connect any MT5 broker directly from Android using your MetaApi Account ID &amp; API Token to trade live and sync portfolio.
+          </p>
+          <div class="form-row">
+            <span>MT5 Login ID</span>
+            <input type="text" id="mt5LoginInp" placeholder="e.g. 51284920" class="modal-input num" style="width:185px;" />
+          </div>
+          <div class="form-row">
+            <span>Broker Server</span>
+            <input type="text" id="mt5ServerInp" placeholder="e.g. Exness-MT5Real12" class="modal-input" style="width:185px;" />
+          </div>
+          <div class="form-row">
+            <span>MetaApi Account ID</span>
+            <input type="text" id="mt5AccountIdInp" placeholder="UUID from MetaApi" class="modal-input" style="width:185px;" />
+          </div>
+          <div class="form-row">
+            <span>MetaApi Token</span>
+            <input type="password" id="mt5TokenInp" placeholder="Paste API Token" class="modal-input" style="width:185px;" />
+          </div>
+        </div>
+
+        <div id="mt5LocalPane" style="display:none;flex-direction:column;gap:9px;">
+          <p style="font-size:11px;color:var(--text-muted);line-height:1.4;">
+            Connect directly to MetaTrader 5 running on your Windows PC over Wi-Fi/LAN via Python bridge.
+          </p>
+          <div class="form-row">
+            <span>Bridge URL</span>
+            <input type="text" id="mt5BridgeUrlInp" placeholder="http://192.168.1.5:8765" class="modal-input" style="width:195px;" />
+          </div>
+          <div class="form-row">
+            <span>MT5 Account #</span>
+            <input type="text" id="mt5LocalLoginInp" placeholder="Optional" class="modal-input num" style="width:195px;" />
+          </div>
+          <button type="button" class="obj-btn" id="copyMt5PyScriptBtn" style="padding:7px;text-align:center;">
+            📋 Copy Windows MT5 Python Bridge Server Script
+          </button>
+        </div>
+
+        <div id="mt5ConnFeedback" style="font-size:11px;color:var(--text-muted);"></div>
+      </div>
+      <div class="modal-foot-bar">
+        <button type="button" class="tv-btn" id="mt5DisconnectBtn" style="color:var(--bear);">Disconnect</button>
+        <div style="display:flex;gap:8px;">
+          <button type="button" class="tv-btn" data-close="mt5ConnectModal">Cancel</button>
+          <button type="button" class="tv-btn active" id="mt5ConnectSaveBtn" style="padding:0 14px;">Connect MT5</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 12. MODIFY MT5 POSITION SL / TP MODAL -->
+  <div class="modal-backdrop" id="mt5ModifyModal">
+    <div class="tv-modal" style="max-width:340px;">
+      <div class="modal-head">
+        <span id="mt5ModTitle">Modify MT5 SL / TP</span>
+        <button class="tv-btn icon-only" data-close="mt5ModifyModal">✕</button>
+      </div>
+      <div class="modal-body" style="padding:12px 14px;display:flex;flex-direction:column;gap:10px;">
+        <div class="form-row">
+          <span>Stop Loss (SL)</span>
+          <input type="number" step="any" id="mt5ModSlInp" placeholder="0.00" class="modal-input num" style="width:140px;" />
+        </div>
+        <div class="form-row">
+          <span>Take Profit (TP)</span>
+          <input type="number" step="any" id="mt5ModTpInp" placeholder="0.00" class="modal-input num" style="width:140px;" />
+        </div>
+        <button type="button" class="tv-btn active" id="mt5ModConfirmBtn" style="width:100%;justify-content:center;margin-top:4px;">Update SL / TP on MT5</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-pill" id="toastPill"></div>
+
+  <!-- Firebase Compat SDK v10.14.1 (Auth + Firestore) -->
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+
+  <script src="firebase-config.js"></script>
+  <script src="engine.js"></script>
+  <script src="chart.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
